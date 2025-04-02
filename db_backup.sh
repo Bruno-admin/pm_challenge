@@ -1,0 +1,17 @@
+#!/bin/bash
+
+# DATABASE ACCESS PARAMETERS
+HOST="SET_IP/HOST"
+PORT="SET_PORT"
+USER="SET_USER"
+PASSWORD="SET_PASSWORD"
+BD_NAME="SET_BD_NAME"
+
+# BACKUP DIR
+BACKUP_DIR="/mnt/backups"
+
+CURRENT_DATETIME=$(date +"%Y-%m-%d_%H%M")
+pg_dump -h $HOST -p $PORT -U $USER -d $BD_NAME -F c -f "$BACKUP_DIR/bica-backup-${CURRENT_DATETIME}"
+# Will prompt a password
+$PASSWORD
+
