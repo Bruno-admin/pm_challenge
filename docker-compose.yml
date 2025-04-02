@@ -1,0 +1,7 @@
+version: "3.8"
+
+services:
+  postgres-backup:
+    build: .
+    volumes:
+      - /mnt/backups:/backups
