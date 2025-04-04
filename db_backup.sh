@@ -1,26 +1,28 @@
 #!/bin/bash
 
-# DATABASE ACCESS PARAMETERS
-HOST="SET_IP/HOST"
-PORT="SET_PORT"
-USER="SET_USER"
-PASSWORD="SET_PASSWORD"
-BD_NAME="SET_BD_NAME"
-CURRENT_DATETIME=$(date +"%Y-%m-%d_%H%M")
-
-# BACKUP DIR
+#Variables
 BACKUP_DIR="/backups"
+CURRENT_DATETIME=$(date +"%Y-%m-%d_%H%M")
+TEMP_FILE="/tmp/db_backup.dump"
+COMPRESSED_FILE="$BACKUP_DIR/bica-backup-$CURRENT_DATETIME.tgz"
+ENCRYPTED_FILE="$COMPRESSED_FILE.enc"
+
+echo "Starting PostgreSQL backup at $(date)..."
 
 # Create the backup
-pg_dump -h $HOST -p $PORT -U $USER -d $BD_NAME -F c -f /tmp/db_backup.dump
+PGPASSWORD="$POSTGRES_PASSWORD" pg_dump -h "$POSTGRES_HOST" -U "$POSTGRES_USER" -d "$POSTGRES_DB" -F c -f "$TEMP_FILE"
 
-# Will prompt a password
-$PASSWORD
+if [ $? -ne 0 ]; then
+    echo "Database backup failed!"
+    exit 1
+fi
 
-# Create and save as .tgz
-tar -czf $BACKUP_DIR/bica-backup-${CURRENT_DATETIME}.tgz -C /tmp db_backup.dump
-rm /tmp/db_backup.dump
+echo "Compressing backup..."
+tar -czf "$COMPRESSED_FILE" -C /tmp db_backup.dump
+rm "$TEMP_FILE"
 
-# Encrypt the backup
-openssl enc -aes-256-cbc -salt -pbkdf2 -in /backups/bica-backup-${CURRENT_DATETIME}.tgz -out /backups/bica-backup-${CURRENT_DATETIME}.tgz.enc
-rm /backups/bica-backup-${CURRENT_DATETIME}.tgz
+echo "Encrypting backup..."
+openssl enc -aes-256-cbc -salt -pbkdf2 -in "$COMPRESSED_FILE" -out "$ENCRYPTED_FILE" -k "$ENCRYPTION_PASSWORD"
+rm "$COMPRESSED_FILE"
+
+echo "Backup completed successfully: $ENCRYPTED_FILE"

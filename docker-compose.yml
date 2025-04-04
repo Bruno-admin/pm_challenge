@@ -5,3 +5,11 @@ services:
     build: .
     volumes:
       - /mnt/backups:/backups
+    environment:
+      POSTGRES_HOST: "postgres_host"
+      POSTGRES_USER: "username"
+      POSTGRES_PASSWORD: "password"
+      POSTGRES_DB: "database_name"
+      ENCRYPTION_PASSWORD: "encryption_password"
+      RETENTION_DATYS: "backup_rentention_days"
+    restart: always #Ensures that if the host is restarted, the docker caries the task without human intervention
