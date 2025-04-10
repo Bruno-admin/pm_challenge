@@ -18,7 +18,7 @@ if [ $? -ne 0 ]; then
 fi
 
 echo "Compressing backup..."
-tar -czf "$COMPRESSED_FILE" -C /tmp db_backup.dump
+tar -czf "$COMPRESSED_FILE" -C "$TEMP_FILE"
 rm "$TEMP_FILE"
 
 echo "Encrypting backup..."
